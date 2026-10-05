@@ -69,6 +69,10 @@ public:
   {
     return ID1.t==ID2.t;
   }
+  friend inline bool operator!=(const IDRota& ID1, const IDRota& ID2)
+  {
+    return ID1.t!=ID2.t;
+  }
   // Impressao
   friend std::ostream& operator<<(std::ostream& X, const IDRota& ID)
   {
