@@ -1,0 +1,24 @@
+# depslib dependency file v1.0
+1785350276 source:d:\pa\planejador\planejador-main.cpp
+	<iostream>
+	<chrono>
+	"planejador.h"
+
+1790969391 d:\pa\planejador\planejador.h
+	<string>
+	<iostream>
+	<utility>
+	<deque>
+	<vector>
+
+1790971340 source:d:\pa\planejador\planejador.cpp
+	"planejador.h"
+	<stdexcept>
+	<cmath>
+	<cctype>
+	<fstream>
+	<algorithm>
+	<vector>
+	<string>
+	<list>
+
