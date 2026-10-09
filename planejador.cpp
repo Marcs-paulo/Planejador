@@ -125,17 +125,21 @@ void trim(string& S)
 void Planejador::ler(const std::string& arq_pontos,
                      const std::string& arq_rotas)
 {
+
   // Vetores temporarios para armazenamento dos Pontos e Rotas lidos.
+
   vector<Ponto> pontos_temp;
   vector<Rota> rotas_temp;
 
   // Leh os Pontos do arquivo e armazena no vetor temporario de Pontos.
   // Em caso de qualquer erro, gera excecao ios_base::failure com mensagem:
   //   "Erro <CODIGO> na leitura do arquivo de pontos <ARQ_PONTOS>"
+
   try
   {
     // 1) Abre uma stream associada ao arquivo de Pontos
     //    (Em caso de erro, codigo 1)
+
     ifstream leitura(arq_pontos);
     if(!leitura.is_open()) throw 1;
 
@@ -143,22 +147,28 @@ void Planejador::ler(const std::string& arq_pontos,
     //    separadores no final da string e testa o cabecalho:
     //    "ID;Nome;Latitude;Longitude"
     //    (Em caso de erro ou valor lido diferente, codigo 2)
+
     string cabecalho;
     leitura >> ws;
     if(!getline(leitura, cabecalho)) throw 2;
-    trim(cabecalho); // funcao trim ja definida acima que remove espacos em branco desnecessarios
+    trim(cabecalho);
 
     //    Consome os separadores apos o cabecalho
+
     if(cabecalho != "ID;Nome;Latitude;Longitude") throw 2;
     leitura >> ws;
 
     // Ponto que sera lido do arquivo
+
     Ponto P;
+
     //string, temporaria que sera usada para leitura
     string temp;
 
     // 3) Enquanto o arquivo nao acabar (eof), repita a leitura de cada um dos Pontos:
+
     while(!leitura.eof()){
+
     //    | 3.1) Leh a ID e elimina eventuais separadores no final da string
     //    |      (Em caso de erro ou conteudo lido vazio, codigo 3)
     //    |      O teste se a ID eh valida serah feito ao testar o Ponto
@@ -197,6 +207,7 @@ void Planejador::ler(const std::string& arq_pontos,
 
     //    | 3.6) Consome os separadores apos o Ponto
         leitura >> ws;
+
     //    | 3.7) Testa se o Ponto com os parametros lidos eh valido
     //    |      (Em caso de erro, codigo 8)
 
@@ -235,6 +246,7 @@ void Planejador::ler(const std::string& arq_pontos,
     //    (Em caso de erro, codigo 1)
     ifstream leitura(arq_rotas);
     if(!leitura.is_open()) throw 1;
+
     // 2) Consome eventuais separadores, leh o cabecalho do arquivo, elimina eventuais
     //    separadores no final da string e testa o cabecalho:
     //    "ID;Nome;Extremidade 1;Extremidade 2;Comprimento"
@@ -244,7 +256,7 @@ void Planejador::ler(const std::string& arq_pontos,
     string cabecalho;
     leitura >> ws;
     if(!getline(leitura, cabecalho)) throw 2;
-    trim(cabecalho); // funcao trim ja definida acima que remove espacos em branco desnecessarios
+    trim(cabecalho);
 
     //    Consome os separadores apos o cabecalho
     if(cabecalho != "ID;Nome;Extremidade 1;Extremidade 2;Comprimento") throw 2;
@@ -407,10 +419,6 @@ struct Noh
     //Construtor default
     Noh(): id_pt(), id_rt(), g(0.0), h(0.0) {}
 
-    //Construtor especifico
-    Noh(const IDPonto& ID_PT, const IDRota& ID_RT, double G, double H):
-        id_pt(ID_PT),id_rt(ID_RT),g(G),h(H) {}
-
     //custo total f()=g+h
     double f() const {return g + h; }
 
@@ -472,7 +480,11 @@ double Planejador::calculaCaminho(const IDPonto& id_origem,
 
     // atual ← Noh inicial
     //Primeiro nó de busca (no que corresponde a origem)
-    Noh atual(id_origem, IDRota(), 0.0, pt_origem.distancia(pt_destino));
+    Noh atual;
+    atual.id_pt = id_origem;
+    atual.id_rt = IDRota();
+    atual.g = 0.0;
+    atual.h = pt_origem.distancia(pt_destino);
 
 
     // Inicializa os conjuntos de Noh’s
@@ -506,8 +518,7 @@ double Planejador::calculaCaminho(const IDPonto& id_origem,
 
             auto itr = rotas.begin();
 
-            while(itr != rotas.end()){
-
+            do{
                 // Busca "rota_suc", proxima Rota conectada a "atual"
                 itr = find(itr, rotas.end(), atual.id_pt);
 
@@ -564,25 +575,27 @@ double Planejador::calculaCaminho(const IDPonto& id_origem,
                     ++itr;
 
                 } //FIM SE ( EXISTE(rota_suc) )
-            } // Fim ENQUANTO ( EXISTE(rota_suc) )
+            } while(itr != rotas.end()); // Fim ENQUANTO ( EXISTE(rota_suc) )
         } //FIM SE (atual.id_pt ≠
     }while(!Aberto.empty() && atual.id_pt != id_destino);
-/// revisar isso com o professor
+
+
     // Calcula nº de nós da busca
     NumAberto = int(Aberto.size());
     NumFechado = int(Fechado.size());
 
-    //teoricamente inicialmente C já é criado vazio pelo construtor mas para garantir
-    C.clear();
+    //C já é criado vazio pelo construtor
+
     //Encontrou solucao ou nao?
     if(atual.id_pt != id_destino){
         // Nao existe solucao
-        Compr = -1.0;
         // caminho "C" permanece vazio
-        C.clear();
+        Compr = -1.0;
     }else{
+
         // Calcula comprimento do caminho
         Compr = atual.g;
+
         // Refaz o caminho, procurando
         // Nohs antecessores em Fechado
         while(atual.id_rt.valid())
@@ -593,13 +606,18 @@ double Planejador::calculaCaminho(const IDPonto& id_origem,
             // Recupera o antecessor
             // Obtém "rota_ant", Rota que levou até "atual".
             Rota rota_ant = getRota(atual.id_rt);
+
             // Calcula id do antecessor
             IDPonto id_pt_ant = rota_ant.outraExtremidade(atual.id_pt);
+
             // Procura Noh igual a "id_pt_ant" em Fechado
             auto itr = find(Fechado.begin(), Fechado.end(), id_pt_ant);
-            if(itr != Fechado.end()){
-                atual = *itr;
-            }
+
+            // Se por acaso ele nao encontrar o antecessor no conjunto fechado ele ira lancar esse erro por segurança
+            // Lembrando que esse erro e defensivo isso nunca pode acontecer a nao ser que haja erro de algoritmo
+            if(itr == Fechado.end()) throw 3;
+            atual = *itr;
+
         } // FIM ENQUANTO ( VÁLIDO(...) )
 
         // Acrescenta Trecho da origem no topo do caminho "C"
